@@ -18,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuario= $usuario["usuario"];
             // Redirección según tipo de usuario
             if ($usuario['tipo_usuario'] === 'recepcionista') {
-                header('Location: ../pages/oficial.html');
+                header('Location: ../views/oficial.html');
                 exit;
             } elseif ($usuario['tipo_usuario'] === 'veterinario') {
-                header('Location: ../pages/1_inicio.php');
+                header('Location: ../views/1_inicio.php');
                 exit;
             } else {
-                header('Location: ../pages/oficial.php');
+                header('Location: ../views/oficial.php');
                 exit;
             }
         } else {
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit" class="btn login-btn w-100 fw-semibold shadow-sm mb-3">Iniciar Sesión</button>
       </form>
       <p class="text-center">
-        ¿No tienes cuenta? <a href="../pages/registrar_nuevo_usuario.php" class="text-primary">Regístrate aquí</a>
+        ¿No tienes cuenta? <a href="../views/registrar_nuevo_usuario.php" class="text-primary">Regístrate aquí</a>
 
     </main>
 
