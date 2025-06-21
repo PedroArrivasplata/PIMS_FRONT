@@ -1,58 +1,54 @@
 <template>
-  <div class="login-body d-flex justify-content-center align-items-center min-vh-100">
-    <video autoplay muted loop id="background-video" class="position-absolute w-100 h-100" style="object-fit:cover;z-index:-1;">
-      <source src="../assets//happy_dog.png" type="img">
+  <div class="login-body">
+    <video autoplay muted loop id="background-video">
+      <source src="../assets/happy_dog.png" type="img">
     </video>
-
-    <div class="login-wrapper d-flex justify-content-center align-items-center w-100" style="z-index:1;">
-      <!-- Imagen izquierda -->
-      <div class="d-none d-md-block">
-        <img src="../assets//happy_dog.png" alt="perrito" class="mascota-img-side" />
-      </div>
-
-      <!-- Formulario de inicio de sesión -->
-      <main class="login-container animate__animated animate__fadeInDown mx-3 d-flex flex-column align-items-center">
-        <div class="text-center mb-3">
-          <i class="bi bi-person-circle login-icon"></i>
+    <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center position-relative" style="z-index:1;">
+      <div class="row w-100 justify-content-center align-items-center">
+        <!-- Imagen izquierda -->
+        <div class="col-md-4 d-none d-md-flex justify-content-center align-items-center">
+          <img src="../assets/happy_dog.png" alt="perrito" class="mascota-img-side" />
         </div>
-        <h1 class="text-center fs-2 fw-bold mb-2">Bienvenidos</h1>
-        <h2 class="text-center fs-4 fw-bold mb-4 text-primary">a Medical Vice</h2>
-
-        <form @submit.prevent="iniciarSesion" class="w-100" style="max-width:350px;">
-          <div v-if="mensaje" class="container mt-4">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-              {{ mensaje }}
-              <button type="button" class="btn-close" @click="mensaje = ''" aria-label="Cerrar"></button>
+        <!-- Formulario de inicio de sesión -->
+        <div class="col-12 col-md-4 d-flex flex-column align-items-center">
+          <main class="login-container animate__animated animate__fadeInDown w-100">
+            <div class="text-center mb-3">
+              <i class="bi bi-person-circle login-icon"></i>
             </div>
-          </div>
-          <!-- Campo de usuario -->
-          <div class="input-group mb-3">
-            <span class="input-group-text login-input-icon">
-              <i class="bi bi-person-fill"></i>
-            </span>
-            <input type="text" class="form-control" placeholder="Ingresa tu usuario" v-model="correo" required />
-          </div>
-
-          <!-- Campo de contraseña -->
-          <div class="input-group mb-3">
-            <span class="input-group-text login-input-icon">
-              <i class="bi bi-lock-fill"></i>
-            </span>
-            <input type="password" class="form-control" placeholder="Ingresa tu contraseña" v-model="clave" required />
-          </div>
-
-          <!-- Botón de inicio de sesión -->
-          <button type="submit" class="btn login-btn w-100 fw-semibold shadow-sm mb-3">Iniciar Sesión</button>
-        </form>
-        <p class="text-center">
-          ¿No tienes cuenta?
-          <a href="../views/registrar_nuevo_usuario.php" class="text-primary">Regístrate aquí</a>
-        </p>
-      </main>
-
-      <!-- Imagen derecha -->
-      <div class="d-none d-md-block">
-        <img src="../assets//happy_cat.png" alt="gatito" class="mascota-img-side" />
+            <h1 class="text-center fs-2 fw-bold mb-2">Bienvenidos</h1>
+            <h2 class="text-center fs-4 fw-bold mb-4 text-primary">a Medical Vice</h2>
+            <form @submit.prevent="iniciarSesion" class="w-100" style="max-width:350px;margin:auto;">
+              <div v-if="mensaje" class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ mensaje }}
+                <button type="button" class="btn-close" @click="mensaje = ''" aria-label="Cerrar"></button>
+              </div>
+              <!-- Campo de usuario -->
+              <div class="input-group mb-3">
+                <span class="input-group-text login-input-icon">
+                  <i class="bi bi-person-fill"></i>
+                </span>
+                <input type="text" class="form-control" placeholder="Ingresa tu usuario" v-model="correo" required />
+              </div>
+              <!-- Campo de contraseña -->
+              <div class="input-group mb-3">
+                <span class="input-group-text login-input-icon">
+                  <i class="bi bi-lock-fill"></i>
+                </span>
+                <input type="password" class="form-control" placeholder="Ingresa tu contraseña" v-model="clave" required />
+              </div>
+              <!-- Botón de inicio de sesión -->
+              <button type="submit" class="btn login-btn w-100 fw-semibold shadow-sm mb-3">Iniciar Sesión</button>
+            </form>
+            <p class="text-center">
+              ¿No tienes cuenta?
+              <a href="../views/registrar_nuevo_usuario.php" class="text-primary">Regístrate aquí</a>
+            </p>
+          </main>
+        </div>
+        <!-- Imagen derecha -->
+        <div class="col-md-4 d-none d-md-flex justify-content-center align-items-center">
+          <img src="../assets/happy_cat.png" alt="gatito" class="mascota-img-side" />
+        </div>
       </div>
     </div>
   </div>
@@ -88,8 +84,8 @@ export default {
           } else if (usuario.tipo_usuario === 'veterinario') {
             // this.$emit('login-exitoso', usuario)
             console.log('Login exitoso:', usuario);
-            this.$router.push('/inicio'); 
-            // No uses window.location.href
+            // Cambia esto si usas Vue Router, si no, emite evento o redirige
+            this.$router.push('/inicio');
           } else {
             window.location.href = '../views/oficial.php';
           }
@@ -117,29 +113,45 @@ export default {
   width: 100vw;
   overflow: hidden;
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   background: #f8fafc;
-}
-.login-wrapper {
-  width: 100%;
-  max-width: 900px;
 }
 .login-container {
   background: #fff;
   border-radius: 1rem;
   box-shadow: 0 0 32px 0 rgba(0,0,0,0.08);
   padding: 2.5rem 2rem;
-  min-width: 320px;
+  min-width: 280px;
   max-width: 400px;
+  margin: auto;
 }
+
+
 .mascota-img-side {
   max-width: 180px;
   height: auto;
 }
 #background-video {
+  position: absolute;
   left: 0;
   top: 0;
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+@media (max-width: 991px) {
+  .mascota-img-side {
+    max-width: 120px;
+  }
+}
+@media (max-width: 767px) {
+  .login-container {
+    padding: 1.5rem 0.5rem;
+    min-width: 220px;
+    max-width: 100vw;
+  }
+  .mascota-img-side {
+    display: none;
+  }
 }
 </style>

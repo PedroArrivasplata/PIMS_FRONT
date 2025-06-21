@@ -7,17 +7,17 @@
         <p>Panel Veterinario</p>
       </div>
       <ul class="vet-sidebar-nav">
-        <li><a href="#" class="active"><i class="fas fa-home"></i> Inicio</a></li>
+        <li><router-link to="/inicio"><i class="fas fa-home"></i> Inicio</router-link></li>
         <li><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
         <li><a href="#"><i class="fas fa-syringe"></i> Cartilla de Vacunación</a></li>
         <li><a href="#"><i class="fas fa-stethoscope"></i> Consulta Médica</a></li>
         <li><a href="#"><i class="fas fa-microscope"></i> Exámenes Médicos</a></li>
-        <li><a href="#"><i class="fas fa-file-medical"></i> Historial Médico</a></li>
+        <li><router-link to="/"><i class="fas fa-file-medical"></i> Historial Médico</router-link></li>
       </ul>
-      <a href="#" class="vet-logout">
+      <router-link to="/" class="vet-logout">
         <i class="fas fa-sign-out-alt"></i>
         Cerrar sesión
-      </a>
+      </router-link>
     </aside>
     
     <main class="vet-main-content scroll-sections">
@@ -118,18 +118,6 @@ export default {
   box-sizing: border-box;
 }
 
-.vet-sidebar {
-  width: 260px;
-  min-width: 200px;
-  max-width: 300px;
-  background: #fff;
-  border-right: 1px solid #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 2rem 1rem 1rem 1rem;
-  box-sizing: border-box;
-}
 
 .vet-main-content {
   flex: 1;
