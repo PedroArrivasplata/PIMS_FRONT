@@ -222,7 +222,8 @@ export default {
           name: mascota.nombre,
           breed: mascota.raza,
           age: (mascota.edad ? mascota.edad + ' años' : ''),
-          img: ICONO_MASCOTA
+          img: ICONO_MASCOTA,
+          propietario: mascota.propietario || 'Desconocido'
         }));
         this.selectedPet = this.pets.length > 0 ? this.pets[0].id : null;
       } catch (e) {
