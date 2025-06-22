@@ -1,24 +1,6 @@
 <template>
   <div class="vet-dashboard">
-    <aside class="vet-sidebar">
-      <div class="vet-sidebar-header">
-        <img src="../assets/happy_dog.png" alt="Medical Vice Logo">
-        <h3>Medical Vice</h3>
-        <p>Panel Veterinario</p>
-      </div>
-      <ul class="vet-sidebar-nav">
-        <li><router-link to="/inicio"><i class="fas fa-home"></i> Inicio</router-link></li>
-        <li><router-link to="/agenda"><i class="fas fa-calendar-alt"></i> Agenda</router-link></li>
-        <li><router-link to="/cartilla-vacunacion"><i class="fas fa-syringe"></i> Cartilla de Vacunación</router-link></li>
-        <li><router-link to="/consulta-medica"><i class="fas fa-stethoscope"></i> Consulta Médica</router-link></li>
-        <li><router-link to="/examenes-medicos" class="active"><i class="fas fa-microscope"></i> Exámenes Médicos</router-link></li>
-        <li><router-link to="/historial-medico"><i class="fas fa-file-medical"></i> Historial Médico</router-link></li>
-      </ul>
-      <router-link to="/" class="vet-logout">
-        <i class="fas fa-sign-out-alt"></i>
-        Cerrar sesión
-      </router-link>
-    </aside>
+    <VetSidebar />
     <main class="vet-main-content scroll-sections">
       <div class="vet-header">
         <div>
@@ -32,10 +14,10 @@
           <h3><i class="fas fa-search"></i> Buscar Mascota</h3>
         </div>
         <div class="vet-form-group">
-          <label for="busqueda-mascota">Nombre o ID de la mascota:</label>
+          <label for="busqueda-mascota">Nombre o dni del propietario de la mascota:</label>
           <div class="vet-input-group">
-            <input type="text" id="busqueda-mascota" class="vet-form-control" placeholder="Ej: Max o MV-001">
-            <button class="vet-btn">
+            <input type="text" id="busqueda-mascota" v-model="searchQuery" class="vet-form-control" placeholder="Ej: David o 12345678" />
+            <button class="vet-btn" @click="buscarMascotas">
               <i class="fas fa-search"></i> Buscar
             </button>
           </div>
@@ -44,35 +26,18 @@
       <!-- Lista de mascotas recientes -->
       <div class="vet-card" style="margin-top: 20px;">
         <div class="vet-card-header">
-          <h3><i class="fas fa-paw"></i> Mascotas Recientes</h3>
+          <h3><i class="fas fa-paw"></i> mascotas</h3>
         </div>
         <div class="vet-pets-list">
-          <div class="vet-pet-item">
-            <label>
-              <input type="radio" name="paciente" checked>
-              <div class="d-flex align-items-center">
-                <img src="../assets/mascota_1.jpg" alt="Max" class="vet-pet-avatar">
-                <div>
-                  <h4>Max</h4>
-                  <p class="text-muted">Labrador Retriever - 3 años</p>
-                  <p>ID: MV-001</p>
-                </div>
-              </div>
-            </label>
-          </div>
-          <div class="vet-pet-item">
-            <label>
-              <input type="radio" name="paciente">
-              <div class="d-flex align-items-center">
-                <img src="../assets/mascota_2.jpg" alt="Luna" class="vet-pet-avatar">
-                <div>
-                  <h4>Luna</h4>
-                  <p class="text-muted">Siamés - 2 años</p>
-                  <p>ID: MV-002</p>
-                </div>
-              </div>
-            </label>
-          </div>
+          <VetPetItem
+            v-for="(pet, idx) in pets"
+            :key="pet.id"
+            :pet="pet"
+            :checked="selectedPet === pet.id"
+            :radioName="'paciente'"
+            @select="selectedPet = pet.id"
+          />
+          <div v-if="pets.length === 0" class="text-muted" style="padding: 1rem;">No hay mascotas para mostrar.</div>
         </div>
       </div>
       <!-- Formulario de gestión de exámenes médicos -->
@@ -166,7 +131,7 @@
                   <a href="#" class="vet-btn-icon" title="Descargar">
                     <i class="fas fa-download"></i>
                   </a>
-                  <router-link to="/examenes_medicos_modificar" class="vet-btn-icon" title="Editar">
+                  <router-link to="/examenes-medicos-modificar" class="vet-btn-icon" title="Editar">
                     <i class="fas fa-edit"></i>
                   </router-link>
                   <a href="#" class="vet-btn-icon" style="color: #e74c3c;" title="Eliminar">
@@ -190,7 +155,7 @@
                   <a href="#" class="vet-btn-icon" title="Descargar">
                     <i class="fas fa-download"></i>
                   </a>
-                  <router-link to="/examenes_medicos_modificar" class="vet-btn-icon" title="Editar">
+                  <router-link to="/examenes-medicos-modificar" class="vet-btn-icon" title="Editar">
                     <i class="fas fa-edit"></i>
                   </router-link>
                   <a href="#" class="vet-btn-icon" style="color: #e74c3c;" title="Eliminar">
@@ -207,8 +172,66 @@
 </template>
 
 <script>
+import VetSidebar from '../components/VetSidebar.vue';
+import VetPetItem from '../components/VetPetItem.vue';
+
+const ICONO_MASCOTA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAhFBMVEX///8AAAAmJibt7e2urq7p6emfn584ODhcXFz6+vrZ2dmbm5tDQ0M1NTX29vbm5ubFxcW9vb1lZWXx8fFLS0vNzc1zc3Pg4OCjo6OOjo7BwcGIiIh/f3+ysrJbW1vV1dUTExN3d3ctLS0bGxsaGhpOTk6Tk5M+Pj4iIiIMDAyCgoJsbGwliqaVAAAKqElEQVR4nO2d6ZaqMAyAVdxwQRRRdNxw1HF5//e7NgVk6UIhIPecfn/uHWWYhqZJmqal1dJoNBqNRqPRaDQajUaj0Wg0Go1Go9FoNBqNRqPR/OfM7H13fBuPu3N39u22oGNtfwbtBGe/u/52q9Aw7UWbyWlnW99uHAJW98yWLxDSNb/dwpLY05hmXhev1eo1XHbiQi67zrcbWYafUI7D2DUilbQMt7/6jWS8j/9fGVdUhAGzm0bjT//2a28aDmNo/cTlXrDehD35mNfYLjRGebpnvgz1+P/zHtYfafheep19CGTs1tCoAphclwaDcJXnHnbQj6vGeY7ZbXm+3zuDw2Y/yny5A3+Xs81dKuLEQG5hSSJXAFzHcedtDeHDY957OTTu6TQqYmXEYn8/+5llmub6Rn+WD8IPtBtPDRLRywpI+Y1CFk/phscL9GJjvL8FnmzRdV3b2x06LFFVXdwM7rJsirmZJ+y7te76qfnRQl3feiDiDrWdxXm92zJIfuTMN6H7bvvUxuwuA1vhputHkb6vCN44M9zt1g2NPngMlVjFJb9waYTPMHK1/axsbyCU9Yu3Cw942FKbsFRXuquSG62QbTtPwEKew1DNNq6JhMPC7cLDziVha+bNVY3/riGdmE9Li+CAq6nizmr0VK1kLmZkorIht26AOU04fAUsz+PGZW/D5AYPb1yiaUgcCurSW4orR7v3ZGwbNJg4l2ocChB4qyd05wIVhO9e1Io1wNbMSDPUU2Qk8vzlWagJHdwWuehWrnkYkCnuQ9WawiSQO2uEEfhstfz3P5OSzUMAdEnxSZskjPvjPxbiCy80nMA31Ooc1Nuxl0Rx8NScVu/UjBkGOH2eXWRiTsRdSNV0ROPZJkwTfVU9tYWjsBXMWI7U6S/LNg8B66Q4dViIDCkh7EO7IWEN1dP8nmstnS26gWTgivjLHTVCk4bZbDCbjTRIIPPfB/lPp5CzrQISYLVP+XrRvEin79cwFCT6nGtBoHJMcBmPXNkmeTC2jiwRiQknzUgrOjS7lmeWQfp7KrziSd1hK3KMjcCiIubwXtJJkRVE3q1gGvz94JtCFbU9kCWAoVuEF+1iZktqdmsFPL+0QTtZOA1Lxofgh0NDopqAYJFmKVQrEnRvRBck8ojj+qcX61GKeMztBiszL74WSp04PKbIQ8D0ok5jCjFzingi1ArqSto+b7IBCdYe/y+Ajj6iC8IItTa6WQFTEal9CgVnO0cS/lz5f8AcpJxOp2ZTM2ZJmHSC5ib8vNNlhGYkJSAIaEAHhqkP6kx955DwPdT88Ju7lxlCE2Gf9OHX4i4ehiVS6/NAWnDtzSKcDkPCtzmKZBxsk9+YpMJrm/mFAPCV7YR6QwRX4/Sin9YZtoTvGV4/LLZ8JYIueCS8BtPiqWS8AwNT6F1wyS3hm22w3H2Pm0KRhMYdnkjqUxIh1JgXVpHwLWNQdBgbd86ZK6EDV2cKFNx61VRNwsgyxZI4A94vWOBqp5mchUUEr2+OqCpha01DhJ/ogwPHW5gQrLEKhYj3edRWQKQsYcukZjVKRZBeZVUD0ZkJKxGyTj6iilGXMNTUMPA5prQ2gJaOsYcbfFdXJxaRMBAxbCKobTpZ+hIISJ1IXXFNIQlpci2c8R2pl4z3ifnKevo4L1bkVBHFJIRgNOq3J7WvfuQmZ9eEHmeBCUZNM4yCEjqkiuscejo/iHaW42PPMUZBeaooZw5TmlMtq1AFJaRNjK7rt0NOnUvwP3EJKujpPW/KuQweS8I89bEklPmkEHt+O4UkaKHV8PyQvSiOPx0kubMk7KQumj6z88J5ytsZP4+YfEPp6otDA3nsEHyYftLtjN1mlswysmOQyk+0z9yuaNh6f+WJOg0axy9wczZTZvMTErI3pP1l70UsaCf94ezouqOchRxBTfwVNQPOljAx7NhV3oz8H0J+nq5woe5UIBL6Xj9JSqXs1Nfegi0h+LSSk6A9FRGxF4UZBx4eW0KTWMOycQldihWk6lQhEiqXQnAkhPi5tCmkeY50GqA4qBL6bYyy5lz74PKDKiHJtyCUi9J0HFaMiirhE0dCGgCekTZ/o/chygAi6o4150eVkATPT4RG0dRU7sIPMagSHtAshJuJrAqDKaF1LnIzNiuE6IGCKSHmQqCB1omYEoKVxzr+AtICGFN+ImHX6CVJXzRLfm3c2BJuWHOLojhY5pQ5t3gkrNgx79xiiWfiW8FIRLgPe/aUcGqMdX2mhFBPiZeEAHOqsqORA7v5iSF+l18CQCSCdwqNSXILCN7VPUmbz8xidLLueMKUuzhYq4qWkcTZsCT0nNRl2b6CKhqVPesyoM6miurhovlSyOtjZlh6SAMxQ0EJTdIe1PI0i6TeqqizKSgh2BncdYch9jMLKCghydEgZlcIfvuznIVJMQnBeyHvfeGETqUpJiF53h3kI9mI4g/klylTSEKoocFecSC5U3G1eDEKSQjTCuyVsUZJ+ESKPxI0SUsh241emdZvkKWZVRJ+/DTIW8DiKHqpNkndVXEySBEJN5XYhGWFUdt98eF1kktYSXzlXPCDCCBXFXSK3yqeNhS7VVF+0mdJKG6+WYmhIc7igX1TwpolodgTVHM2yKsiU/oWsT+O019KTRpk47A32JmPigxNlr50XmRX4SzcqoZhFjiHRNj+StwhSUTdke/JAVadhRkhkBD5r5ry4Y+HdHJbhYT7+pSUJiiET7MKLSVpqNrOWiARMKPI60MFZ2XBLTGzr0LmMmcgH6nKkJpi7KwIH0M2EPH3SIL/qfGIrOj8Aw4mukqRKOO3xk36EIyLVOaM/MT3NXdh7IgHDi9JJyvikAU94dkv6FwlgdsN1yH6Ug+MjmxRAgyDYPe2GnA35BUCGcZJPL8wME0N7Nyo/fwv0BvBziti+7BKQqHYu/YzecCnCxbVSdhzwTEN4y/oKGEh1hyswolgbbu+3ZYfoBP5DgFtnystEP7KEXWwLYlfSgdqWj40pQeZ17hzPQYk7u/coQapmtJZFbr36VuHJ2/ExoZY02nJyQA9VuX8rWOxoHqUX9U1L+8STTiHSnTuS8W4YisHW9zKPH4HVLSeTZYcoOST+8aGuWwCImEGRYQ5j7yrCDpMuKHLoZQRpC/1+K6AgT3lLjKZ7rG4koIGtE91bJIVQnezVHD4AT206LcBb57xKhHRoXvZ/xpxtiDdAom79gyh6HuAN+N4yECfhniPOzwdrQGHzwdQEadYNmFOS5BPVRSSFiVYBkdZ2lsHe8kP3wtkWNC9uu1h6VZZ4cvOmnHKbozjCaNhVlgTsWzAmexpjOA9hufi2yuMqOajOWeXJgg36V/tQjZ+/Qzl85twljeT9TVo4kT5FbjOPDqrYtGU43WZ7MNXp/7uFDYKmrYfbcK5NuKkcgHWp3yq85PLnznz12ePTuPlI1i32AEth74rmB6as/1P/AwR7vmuTcPqJvaGTVe3/XHmWB/zY1rG2vaeh/hZNe0J/yVCTeS4y+z96vxdD1DYeFhOL+kv/zaNNi9MHPfJ3seY5TAeNWQKoYq59laZ3kqx3Gz/K+Vk4Nie/8eS7cJ8jfB/izk72vOuN77dbmNvP7dHjY1aNBqNRqPRaDQajUaj0Wg0Go1Go9FoNBqNRqPRaDRJ/gHGCnsD0T8bHAAAAABJRU5ErkJggg==';
+
 export default {
   name: 'ExamenesMedicos',
+  components: {
+    VetSidebar,
+    VetPetItem
+  },
+  data() {
+    return {
+      pets: [],
+      selectedPet: null,
+      searchQuery: ''
+    }
+  },
+  methods: {
+    async buscarMascotas() {
+      console.log('Buscando mascotas...'); // <-- Debug inicio
+      let url;
+      const input = this.searchQuery.trim();
+      if (!input) {
+        // Input vacío: usar API de todas las mascotas
+        url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=todas_mascotas&query=`;
+      } else if (/^\d+$/.test(input)) {
+        // Solo números: buscar por DNI
+        url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=mascotas_propietario_flexible&dni=${encodeURIComponent(input)}`;
+      } else {
+        // Texto: buscar por nombre
+        url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=mascotas_propietario_flexible&nombre=${encodeURIComponent(input)}`;
+      }
+      try {
+        const res = await fetch(url);
+        console.log('Respuesta fetch:', res); // <-- Debug fetch
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          console.error('No se pudo parsear JSON:', jsonErr);
+          data = null;
+        }
+        console.log('Respuesta API:', data); // <-- Debug
+        const mascotas = Array.isArray(data) ? data : (data && data.mascotas ? data.mascotas : []);
+        this.pets = mascotas.map(mascota => ({
+          id: mascota.id_mascota,
+          name: mascota.nombre,
+          breed: mascota.raza,
+          age: (mascota.edad ? mascota.edad + ' años' : ''),
+          img: ICONO_MASCOTA
+        }));
+        this.selectedPet = this.pets.length > 0 ? this.pets[0].id : null;
+      } catch (e) {
+        console.error('Error al cargar mascotas:', e);
+        this.pets = [];
+        this.selectedPet = null;
+      }
+    }
+  }
 }
 </script>
 
