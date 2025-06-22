@@ -7,12 +7,18 @@
         <p>Panel Veterinario</p>
       </div>
       <ul class="vet-sidebar-nav">
-        <li><router-link to="/inicio"><i class="fas fa-home"></i> Inicio</router-link></li>
-        <li><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
-        <li><a href="#"><i class="fas fa-syringe"></i> Cartilla de Vacunación</a></li>
-        <li><a href="#"><i class="fas fa-stethoscope"></i> Consulta Médica</a></li>
-        <li><a href="#"><i class="fas fa-microscope"></i> Exámenes Médicos</a></li>
-        <li><router-link to="/"><i class="fas fa-file-medical"></i> Historial Médico</router-link></li>
+        <!-- Cambiado de href a router-link, ruta: /inicio -->
+        <li><router-link to="/inicio" class="active"> <i class="fas fa-home"></i> Inicio</router-link></li>
+        <!-- Cambiado de href a router-link, ruta: /agenda -->
+        <li><router-link to="/agenda" ><i class="fas fa-calendar-alt"></i> Agenda</router-link></li>
+        <!-- Cambiado de href a router-link, ruta: /cartilla-vacunacion -->
+        <li><router-link to="/cartilla-vacunacion"><i class="fas fa-syringe"></i> Cartilla de Vacunación</router-link></li>
+        <!-- Cambiado de href a router-link, ruta: /consulta-medica -->
+        <li><router-link to="/consulta-medica"><i class="fas fa-stethoscope"></i> Consulta Médica</router-link></li>
+        <!-- Cambiado de href a router-link, ruta: /examenes-medicos -->
+        <li><router-link to="/examenes-medicos"><i class="fas fa-microscope"></i> Exámenes Médicos</router-link></li>
+        <!-- Cambiado de href a router-link, ruta: /historial-medico -->
+        <li><router-link to="/historial-medico"><i class="fas fa-file-medical"></i> Historial Médico</router-link></li>
       </ul>
       <router-link to="/" class="vet-logout">
         <i class="fas fa-sign-out-alt"></i>
@@ -41,7 +47,8 @@
             <p>Próxima vacuna: <strong>mañana a las 10:30 AM</strong></p>
           </div>
           <div class="vet-card-footer">
-            <a href="#" class="vet-btn">Ver cartillas</a>
+            <!-- Cambiado de href a router-link, ruta: /cartilla-vacunacion -->
+            <router-link to="/cartilla-vacunacion" class="vet-btn">Ver cartillas</router-link>
           </div>
         </div>
         
@@ -57,7 +64,8 @@
             <p>2 análisis de laboratorio, 2 radiografías</p>
           </div>
           <div class="vet-card-footer">
-            <a href="#" class="vet-btn">Revisar</a>
+            <!-- Cambiado de href a router-link, ruta: /examenes-medicos -->
+            <router-link to="/examenes-medicos" class="vet-btn">Revisar</router-link>
           </div>
         </div>
         
@@ -73,7 +81,8 @@
             <p><strong>3 consultas</strong> y <strong>2 vacunaciones</strong></p>
           </div>
           <div class="vet-card-footer">
-            <a href="#" class="vet-btn">Ver agenda</a>
+            <!-- Cambiado de href a router-link, ruta: /agenda -->
+            <router-link to="/agenda" class="vet-btn">Ver agenda</router-link>
           </div>
         </div>
         
@@ -89,7 +98,8 @@
             <p>Última actualización: <strong>hace 3 días</strong></p>
           </div>
           <div class="vet-card-footer">
-            <a href="#" class="vet-btn">Actualizar</a>
+            <!-- Cambiado de href a router-link, ruta: /historial-medico -->
+            <router-link to="/historial-medico" class="vet-btn">Actualizar</router-link>
           </div>
         </div>
       </div>
@@ -103,12 +113,14 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap/icons.css');
 @import '../styles_css/styles_local.css';
 @import '../styles_css/bootstrap.min.css';
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
 
 .vet-dashboard {
   display: flex;

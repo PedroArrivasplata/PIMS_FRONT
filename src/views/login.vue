@@ -102,7 +102,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 @import '../styles_css/bootstrap.min.css';
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
