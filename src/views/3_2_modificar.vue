@@ -1,95 +1,103 @@
 <template>
-  <div class="vet-main-content scroll-sections">
-    <div class="vet-header">
-      <h1>Editar Cartilla de Vacunación</h1>
-      <p class="text-muted">Busca y modifica las cartillas de vacunación existentes.</p>
-    </div>
+  <div class="vet-dashboard">
+    <VetSidebar />
+    <div class="vet-main-content scroll-sections">
+      <div class="vet-header">
+        <h1>Editar Cartilla de Vacunación</h1>
+        <p class="text-muted">Busca y modifica las cartillas de vacunación existentes.</p>
+      </div>
 
-    <div class="modification-container">
-      <div class="search-and-list-section">
-        <h3><i class="fas fa-search"></i> Buscar Cartilla</h3>
-        <label for="search-dni">DNI del Propietario o ID de Mascota:</label>
-        <input
-          type="text"
-          id="search-dni"
-          class="vet-form-control"
-          placeholder="Ingrese DNI o ID"
-          v-model="searchTerm"
-          @keyup.enter="buscarCartillas"
-        />
-        <button @click="buscarCartillas" class="vet-btn">
-          <i class="fas fa-search"></i> Buscar
-        </button>
+      <div class="modification-container">
+        <div class="search-and-list-section">
+          <h3><i class="fas fa-search"></i> Buscar Cartilla</h3>
+          <label for="search-dni">DNI del Propietario o ID de Mascota:</label>
+          <input
+            type="text"
+            id="search-dni"
+            class="vet-form-control"
+            placeholder="Ingrese DNI o ID"
+            v-model="searchTerm"
+            @keyup.enter="buscarCartillas"
+          />
+          <button @click="buscarCartillas" class="vet-btn">
+            <i class="fas fa-search"></i> Buscar
+          </button>
 
-        <div class="results-list">
-          <p v-if="searchAttempted && cartillasEncontradas.length === 0">
-            No se encontraron cartillas.
-          </p>
-          <div
-            v-for="cartilla in cartillasEncontradas"
-            :key="cartilla.id"
-            class="cartilla-summary-card"
-            @click="seleccionarCartilla(cartilla.id)"
-            :class="{ 'selected-cartilla': selectedCartillaId === cartilla.id }"
-          >
-            <h4>{{ cartilla.mascotaNombre }} - ID: {{ cartilla.id }}</h4>
-            <p>Propietario: {{ cartilla.propietarioDni }}</p>
-            <p>Última actualización: {{ cartilla.ultimaActualizacion }}</p>
+          <div class="results-list">
+            <p v-if="searchAttempted && cartillasEncontradas.length === 0">
+              No se encontraron cartillas.
+            </p>
+            <div
+              v-for="cartilla in cartillasEncontradas"
+              :key="cartilla.id"
+              class="cartilla-summary-card"
+              @click="seleccionarCartilla(cartilla.id)"
+              :class="{ 'selected-cartilla': selectedCartillaId === cartilla.id }"
+            >
+              <h4>{{ cartilla.mascotaNombre }} - ID: {{ cartilla.id }}</h4>
+              <p>Propietario: {{ cartilla.propietarioDni }}</p>
+              <p>Última actualización: {{ cartilla.ultimaActualizacion }}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="selectedCartillaId" class="edit-form-section">
-        <h3><i class="fas fa-edit"></i> Detalle y Edición de Cartilla</h3>
-        <div v-if="loadingCartillaDetail" class="loading-message">Cargando detalles de la cartilla...</div>
-        <div v-else>
-          <h4>Cartilla de: {{ selectedCartilla.mascotaNombre }}</h4>
-          <p>DNI Propietario: {{ selectedCartilla.propietarioDni }}</p>
+        <div v-if="selectedCartillaId" class="edit-form-section">
+          <h3><i class="fas fa-edit"></i> Detalle y Edición de Cartilla</h3>
+          <div v-if="loadingCartillaDetail" class="loading-message">Cargando detalles de la cartilla...</div>
+          <div v-else>
+            <h4>Cartilla de: {{ selectedCartilla.mascotaNombre }}</h4>
+            <p>DNI Propietario: {{ selectedCartilla.propietarioDni }}</p>
 
-          <form @submit.prevent="guardarCambios">
-            <div class="vaccine-row header-row">
-              <div>Vacuna</div>
-              <div>Fecha de aplicación</div>
-              <div>Próxima dosis</div>
-            </div>
-            <div v-for="(vacuna, index) in selectedCartilla.vacunas" :key="index" class="vaccine-row">
-              <label :for="`edit_vacuna_${index}`">
+            <form @submit.prevent="guardarCambios">
+              <div class="vaccine-row header-row">
+                <div>Vacuna</div>
+                <div>Fecha de aplicación</div>
+                <div>Próxima dosis</div>
+              </div>
+              <div v-for="(vacuna, index) in selectedCartilla.vacunas" :key="index" class="vaccine-row">
+                <label :for="`edit_vacuna_${index}`">
+                  <input
+                    type="checkbox"
+                    :id="`edit_vacuna_${index}`"
+                    v-model="vacuna.aplicada"
+                  />
+                  {{ vacuna.nombre }}
+                </label>
                 <input
-                  type="checkbox"
-                  :id="`edit_vacuna_${index}`"
-                  v-model="vacuna.aplicada"
+                  type="date"
+                  :id="`edit_vacuna_${index}_fecha`"
+                  v-model="vacuna.fechaAplicacion"
+                  :disabled="!vacuna.aplicada"
                 />
-                {{ vacuna.nombre }}
-              </label>
-              <input
-                type="date"
-                :id="`edit_vacuna_${index}_fecha`"
-                v-model="vacuna.fechaAplicacion"
-                :disabled="!vacuna.aplicada"
-              />
-              <input
-                type="date"
-                :id="`edit_vacuna_${index}_proxima`"
-                v-model="vacuna.proximaDosis"
-                :disabled="!vacuna.aplicada"
-              />
-            </div>
-            <button type="submit" class="vet-btn mt-4">
-              <i class="fas fa-save"></i> Guardar Cambios
-            </button>
-          </form>
+                <input
+                  type="date"
+                  :id="`edit_vacuna_${index}_proxima`"
+                  v-model="vacuna.proximaDosis"
+                  :disabled="!vacuna.aplicada"
+                />
+              </div>
+              <button type="submit" class="vet-btn mt-4">
+                <i class="fas fa-save"></i> Guardar Cambios
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
-      <div v-else class="edit-form-section placeholder-message">
-          <p>Seleccione una cartilla de la lista para ver y editar sus detalles.</p>
+        <div v-else class="edit-form-section placeholder-message">
+            <p>Seleccione una cartilla de la lista para ver y editar sus detalles.</p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import VetSidebar from '../components/VetSidebar.vue';
+
 export default {
   name: 'ModificarCartillaPage',
+  components: {
+    VetSidebar
+  },
   data() {
     return {
       searchTerm: '',
