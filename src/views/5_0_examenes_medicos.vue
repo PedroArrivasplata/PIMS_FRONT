@@ -29,32 +29,14 @@
           <h3><i class="fas fa-paw"></i> Mascotas Recientes</h3>
         </div>
         <div class="vet-pets-list">
-          <div class="vet-pet-item">
-            <label>
-              <input type="radio" name="paciente" checked>
-              <div class="d-flex align-items-center">
-                <img src="../assets/mascota_1.jpg" alt="Max" class="vet-pet-avatar">
-                <div>
-                  <h4>Max</h4>
-                  <p class="text-muted">Labrador Retriever - 3 años</p>
-                  <p>ID: MV-001</p>
-                </div>
-              </div>
-            </label>
-          </div>
-          <div class="vet-pet-item">
-            <label>
-              <input type="radio" name="paciente">
-              <div class="d-flex align-items-center">
-                <img src="../assets/mascota_2.jpg" alt="Luna" class="vet-pet-avatar">
-                <div>
-                  <h4>Luna</h4>
-                  <p class="text-muted">Siamés - 2 años</p>
-                  <p>ID: MV-002</p>
-                </div>
-              </div>
-            </label>
-          </div>
+          <VetPetItem
+            v-for="(pet, idx) in pets"
+            :key="pet.id"
+            :pet="pet"
+            :checked="selectedPet === pet.id"
+            :radioName="'paciente'"
+            @select="selectedPet = pet.id"
+          />
         </div>
       </div>
       <!-- Formulario de gestión de exámenes médicos -->
@@ -190,11 +172,37 @@
 
 <script>
 import VetSidebar from '../components/VetSidebar.vue';
+import VetPetItem from '../components/VetPetItem.vue';
+
+const mascota1 = new URL('../assets/mascota_1.jpg', import.meta.url).href;
+const mascota2 = new URL('../assets/mascota_2.jpg', import.meta.url).href;
 
 export default {
   name: 'ExamenesMedicos',
   components: {
-    VetSidebar
+    VetSidebar,
+    VetPetItem
+  },
+  data() {
+    return {
+      pets: [
+        {
+          id: 'MV-001',
+          name: 'Max',
+          breed: 'Labrador Retriever',
+          age: '3 años',
+          img: mascota1
+        },
+        {
+          id: 'MV-002',
+          name: 'Luna',
+          breed: 'Siamés',
+          age: '2 años',
+          img: mascota2
+        }
+      ],
+      selectedPet: 'MV-001'
+    }
   }
 }
 </script>
