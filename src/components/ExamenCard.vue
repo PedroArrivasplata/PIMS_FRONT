@@ -4,7 +4,6 @@
       <div>
         <h5>{{ examen.nombre }}</h5>
         <p class="text-muted">Realizado el {{ examen.fecha }} - Consulta #{{ examen.consultaId }}</p>
-        <p><strong>Estado:</strong> <span :class="['vet-chip', examen.estado === 'Completado' ? 'vet-chip' : 'vet-chip-pendiente']">{{ examen.estado }}</span></p>
       </div>
       <div>
         <a href="#" class="vet-btn-icon" title="Ver resultado" @click.prevent="viewResult">
@@ -35,8 +34,7 @@ export default {
         id: null,
         nombre: 'Examen Desconocido',
         fecha: 'N/A',
-        consultaId: 'N/A',
-        estado: 'Pendiente'
+        consultaId: 'N/A'
       })
     }
   },
