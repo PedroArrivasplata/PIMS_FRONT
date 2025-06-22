@@ -1,24 +1,6 @@
 <template>
   <div class="vet-dashboard">
-    <aside class="vet-sidebar">
-      <div class="vet-sidebar-header">
-        <img src="../assets/happy_dog.png" alt="Medical Vice Logo">
-        <h3>Medical Vice</h3>
-        <p>Panel Veterinario</p>
-      </div>
-      <ul class="vet-sidebar-nav">
-        <li><router-link to="/inicio"><i class="fas fa-home"></i> Inicio</router-link></li>
-        <li><router-link to="/agenda"><i class="fas fa-calendar-alt"></i> Agenda</router-link></li>
-        <li><router-link to="/cartilla-vacunacion"><i class="fas fa-syringe"></i> Cartilla de Vacunación</router-link></li>
-        <li><router-link to="/consulta-medica"><i class="fas fa-stethoscope"></i> Consulta Médica</router-link></li>
-        <li><router-link to="/examenes-medicos" class="active"><i class="fas fa-microscope"></i> Exámenes Médicos</router-link></li>
-        <li><router-link to="/historial-medico"><i class="fas fa-file-medical"></i> Historial Médico</router-link></li>
-      </ul>
-      <router-link to="/" class="vet-logout">
-        <i class="fas fa-sign-out-alt"></i>
-        Cerrar sesión
-      </router-link>
-    </aside>
+    <VetSidebar />
     <main class="vet-main-content scroll-sections">
       <div class="vet-header">
         <div>
@@ -166,7 +148,7 @@
                   <a href="#" class="vet-btn-icon" title="Descargar">
                     <i class="fas fa-download"></i>
                   </a>
-                  <router-link to="/examenes_medicos_modificar" class="vet-btn-icon" title="Editar">
+                  <router-link to="/examenes-medicos-modificar" class="vet-btn-icon" title="Editar">
                     <i class="fas fa-edit"></i>
                   </router-link>
                   <a href="#" class="vet-btn-icon" style="color: #e74c3c;" title="Eliminar">
@@ -190,7 +172,7 @@
                   <a href="#" class="vet-btn-icon" title="Descargar">
                     <i class="fas fa-download"></i>
                   </a>
-                  <router-link to="/examenes_medicos_modificar" class="vet-btn-icon" title="Editar">
+                  <router-link to="/examenes-medicos-modificar" class="vet-btn-icon" title="Editar">
                     <i class="fas fa-edit"></i>
                   </router-link>
                   <a href="#" class="vet-btn-icon" style="color: #e74c3c;" title="Eliminar">
@@ -207,8 +189,13 @@
 </template>
 
 <script>
+import VetSidebar from '../components/VetSidebar.vue';
+
 export default {
   name: 'ExamenesMedicos',
+  components: {
+    VetSidebar
+  }
 }
 </script>
 
