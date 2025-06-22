@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
+import Login from '../views/login.vue'
 import Inicio from '../views/1_inicio.vue'
 import Agenda  from '../views/2_agenda.vue'
 import cartillaVacunacion from '../views/3_0_cartilla_vacunacion.vue'
