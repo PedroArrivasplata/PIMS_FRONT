@@ -101,23 +101,23 @@ body.login-body {
 }
 
 .login-container {
-  width: 100%;
+  background: rgb(255, 255, 255);
+  border-radius: 1rem;
+  box-shadow: 0 0 32px 0 rgba(0,0,0,0.08);
+  padding: 2.5rem 2rem;
+  min-width: 280px;
   max-width: 400px;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 2rem;
-  z-index: 2;
-  box-shadow: 0 0 20px rgba(0,0,0,0.15);
+  margin: auto;
 }
 
 .login-icon {
   font-size: 4rem;
-  color: #007bff;
+  color: #0099ff;
 }
 
 .login-btn {
-  background-color: #007bff;
-  color: white;
+  background-color: #0070e0 !important;
+  color: white !important;
 }
 
 .login-btn:hover {
