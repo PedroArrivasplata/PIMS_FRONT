@@ -13,6 +13,9 @@
         <router-link :to="`/editar-examen-medico/${examen.id}`" class="vet-btn-icon" title="Editar">
           <i class="fas fa-edit"></i>
         </router-link>
+        <a href="#" class="vet-btn-icon" title="Eliminar" @click.prevent="emitDelete">
+          <i class="fas fa-trash-alt" style="color: #d9534f;"></i>
+        </a>
       </div>
     </div>
   </div>
@@ -80,6 +83,9 @@ export default {
       } else {
         alert('No hay archivo disponible para descargar.');
       }
+    },
+    emitDelete() {
+      this.$emit('delete-examen', this.examen.id);
     }
   }
 }

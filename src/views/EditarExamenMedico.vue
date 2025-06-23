@@ -10,7 +10,11 @@
         <form @submit.prevent="guardarCambios">
           <div class="vet-form-group">
             <label>Nombre del Examen</label>
-            <input v-model="examen.filename" class="vet-form-control" required />
+            <input v-model="examen.filename" class="vet-form-control" required disabled />
+          </div>
+          <div class="vet-form-group">
+            <label>Tipo de Examen</label>
+            <input v-model="examen.tipo_examen_medico_id_tipo_examen_medico" class="vet-form-control" required />
           </div>
           <div class="vet-form-group">
             <label>Fecha</label>
@@ -18,7 +22,7 @@
           </div>
           <div class="vet-form-group">
             <label>Consulta Relacionada</label>
-            <input v-model="examen.consultaId" class="vet-form-control" />
+            <input v-model="examen.consultaId" class="vet-form-control" disabled />
           </div>
           <div class="vet-form-group">
             <label>Archivo Actual</label>
@@ -27,8 +31,8 @@
             </div>
           </div>
           <div class="vet-form-group">
-            <label>Reemplazar Archivo</label>
-            <input type="file" @change="handleFileChange" class="vet-form-control" />
+            <label>Reemplazar Archivo (no soportado en edición)</label>
+            <input type="file" @change="handleFileChange" class="vet-form-control" disabled />
           </div>
           <div class="vet-form-actions">
             <button type="submit" class="vet-btn primary">Guardar Cambios</button>

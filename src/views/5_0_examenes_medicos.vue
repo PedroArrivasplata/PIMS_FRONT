@@ -99,12 +99,7 @@
         <div class="vet-card-section">
           <div class="d-flex justify-content-between align-items-center">
             <h4>Exámenes Registrados</h4>
-            <div class="vet-input-group" style="width: auto;">
-              <input type="text" class="vet-form-control" placeholder="Filtrar exámenes..." style="width: 200px;">
-              <button class="vet-btn">
-                <i class="fas fa-filter"></i>
-              </button>
-            </div>
+            
           </div>
           <div class="vet-examenes-list" style="margin-top: 15px;">
             <ExamenCard
@@ -326,6 +321,28 @@ export default {
         alert('Error de red al registrar examen.');
       } finally {
         this.loadingExamen = false;
+      }
+    },
+    async onDeleteExamen(id) {
+      if (!confirm('¿Está seguro de que desea eliminar este examen médico?')) return;
+      try {
+        const res = await fetch(`http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=examen&id=${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Examen eliminado correctamente.');
+          if (this.selectedPet) {
+            await this.cargarExamenesPorMascota(this.selectedPet);
+          }
+        } else {
+          alert('Error al eliminar examen: ' + (data.error || ''));
+        }
+      } catch (e) {
+        alert('Error de red al eliminar examen.');
       }
     },
 
