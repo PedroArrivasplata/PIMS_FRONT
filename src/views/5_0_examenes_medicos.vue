@@ -47,58 +47,49 @@
         </div>
         <div class="vet-card-section">
           <h4>Información del Examen</h4>
-          <form id="form-examen">
+          <form id="form-examen" @submit="registrarExamenMedico">
             <div class="vet-form-row">
               <div class="vet-form-group">
+                <label for="nombre-examen">Nombre del Examen Médico *</label>
+                <input type="text" id="nombre-examen" class="vet-form-control" v-model="examenForm.nombre" required placeholder="Ej: Hematología completa">
+              </div>
+              <div class="vet-form-group">
                 <label for="tipo-examen">Tipo de Examen *</label>
-                <select id="tipo-examen" class="vet-form-control" required>
+                <select id="tipo-examen" class="vet-form-control" v-model="examenForm.tipo" required>
                   <option value="">Seleccione un tipo</option>
-                  <option value="hematologia">Hematología completa</option>
-                  <option value="bioquimico">Perfil bioquímico</option>
-                  <option value="orina">Análisis de orina</option>
-                  <option value="heces">Análisis de heces</option>
-                  <option value="radiografia">Radiografía</option>
-                  <option value="ecografia">Ecografía</option>
-                  <option value="otros">Otros</option>
+                  <option v-for="tipo in tiposExamen" :key="tipo.id_tipo_examen_medico" :value="tipo.id_tipo_examen_medico">
+                    {{ tipo.id_tipo_examen_medico }} - {{ tipo.categoria_examen }}
+                  </option>
                 </select>
               </div>
               <div class="vet-form-group">
                 <label for="fecha-examen">Fecha del Examen *</label>
-                <input type="date" id="fecha-examen" class="vet-form-control" required>
+                <input type="date" id="fecha-examen" class="vet-form-control" v-model="examenForm.fecha" required>
               </div>
             </div>
             <div class="vet-form-row">
               <div class="vet-form-group">
                 <label for="consulta-relacionada">Consulta Relacionada</label>
-                <select id="consulta-relacionada" class="vet-form-control">
-                  <option value="">Seleccione una consulta</option>
-                  <option value="consulta-001">Consulta #001 - 15/04/2025 (Control rutinario)</option>
-                  <option value="consulta-002">Consulta #002 - 10/03/2025 (Vacunación anual)</option>
+                <select id="consulta-relacionada" class="vet-form-control" v-model="examenForm.consulta" :disabled="!consultasRelacionadas.length">
+                  <option value="" v-if="!consultasRelacionadas.length">Seleccione una consulta</option>
+                  <option v-for="consulta in consultasRelacionadas" :key="consulta.id_consulta" :value="consulta.id_consulta">
+                    {{ consulta.id_consulta }} - {{ consulta.fecha_cita }} ({{ consulta.definicion_consulta }} - {{ consulta.tipo_consulta }})
+                  </option>
                 </select>
               </div>
-              <div class="vet-form-group">
-                <label for="estado-examen">Estado del Examen</label>
-                <select id="estado-examen" class="vet-form-control">
-                  <option value="pendiente">Pendiente</option>
-                  <option value="completado" selected>Completado</option>
-                  <option value="cancelado">Cancelado</option>
-                </select>
-              </div>
+              
             </div>
             <div class="vet-form-group">
               <label for="resultado-examen">Resultado del Examen (Archivo) *</label>
-              <input type="file" id="resultado-examen" class="vet-form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+              <input type="file" id="resultado-examen" class="vet-form-control" accept=".pdf,.jpg,.jpeg,.png" @change="handleFileChange" required>
               <small class="text-muted">Formatos aceptados: PDF, JPG, PNG (Tamaño máximo: 5MB)</small>
             </div>
-            <div class="vet-form-group">
-              <label for="observaciones">Observaciones</label>
-              <textarea id="observaciones" class="vet-form-control" rows="3"></textarea>
-            </div>
+
             <div class="vet-form-actions">
-              <button type="button" class="vet-btn secondary">
+              <button type="button" class="vet-btn secondary" :disabled="loadingExamen" @click="limpiarFormulario">
                 <i class="fas fa-times"></i> Cancelar
               </button>
-              <button type="submit" class="vet-btn">
+              <button type="submit" class="vet-btn" :disabled="loadingExamen">
                 <i class="fas fa-save"></i> Guardar Examen
               </button>
             </div>
@@ -187,10 +178,56 @@ export default {
     return {
       pets: [],
       selectedPet: null,
-      searchQuery: ''
+      searchQuery: '',
+      examenForm: {
+        nombre: '', // nuevo campo para el nombre del examen
+        tipo: '',
+        fecha: '',
+        consulta: '',
+        estado: 'completado',
+        archivo: null,
+        observaciones: ''
+      },
+      loadingExamen: false,
+      tiposExamen: [],
+      consultasRelacionadas: []
     }
   },
+  watch: {
+    selectedPet(newVal) {
+      if (newVal) {
+        this.cargarConsultasPorMascota(newVal);
+      } else {
+        this.consultasRelacionadas = [];
+        this.examenForm.consulta = '';
+      }
+    }
+  },
+  mounted() {
+    this.cargarTiposExamen();
+  },
   methods: {
+    async cargarTiposExamen() {
+      try {
+        const res = await fetch('http://localhost/repo_oficial/PIMS_BACK/controllers/api_casos_base.php?endpoint=tipos_examen');
+        const data = await res.json();
+        this.tiposExamen = Array.isArray(data) ? data : [];
+      } catch (e) {
+        this.tiposExamen = [];
+      }
+    },
+    async cargarConsultasPorMascota(idMascota) {
+      this.consultasRelacionadas = [];
+      this.examenForm.consulta = '';
+      if (!idMascota) return;
+      try {
+        const res = await fetch(`http://localhost/repo_oficial/PIMS_BACK/controllers/api_casos_base.php?endpoint=consultas_por_mascota&id_mascota=${idMascota}`);
+        const data = await res.json();
+        this.consultasRelacionadas = Array.isArray(data) ? data : (data && data.consultas ? data.consultas : []);
+      } catch (e) {
+        this.consultasRelacionadas = [];
+      }
+    },
     async buscarMascotas() {
       console.log('Buscando mascotas...'); // <-- Debug inicio
       let url;
@@ -230,6 +267,72 @@ export default {
         console.error('Error al cargar mascotas:', e);
         this.pets = [];
         this.selectedPet = null;
+      }
+    },
+    limpiarFormulario() {
+      this.selectedPet = null;
+      this.pets = [];
+      this.searchQuery = '';
+      this.consultasRelacionadas = [];
+      this.examenForm = {
+        nombre: '',
+        tipo: '',
+        fecha: '',
+        consulta: '',
+        estado: 'completado',
+        archivo: null,
+        observaciones: ''
+      };
+      const fileInput = document.getElementById('resultado-examen');
+      if (fileInput) fileInput.value = '';
+    },
+    handleFileChange(e) {
+      this.examenForm.archivo = e.target.files[0] || null;
+    },
+    async registrarExamenMedico(e) {
+      e.preventDefault();
+      if (!this.selectedPet) {
+        alert('Seleccione una mascota.');
+        return;
+      }
+      if (!this.examenForm.nombre || !this.examenForm.tipo || !this.examenForm.fecha || !this.examenForm.archivo) {
+        alert('Complete todos los campos obligatorios.');
+        return;
+      }
+      this.loadingExamen = true;
+      const formData = new FormData();
+      const tipoExamenObj = this.tiposExamen.find(t => t.id_tipo_examen_medico == this.examenForm.tipo);
+      // Renombrar archivo con el nombre del examen
+      let archivoFinal = this.examenForm.archivo;
+      try {
+        const extension = archivoFinal.name.split('.').pop();
+        const nombreLimpio = this.examenForm.nombre.replace(/[^a-zA-Z0-9_\-]/g, '_');
+        archivoFinal = new File([archivoFinal], `${nombreLimpio}.${extension}`, { type: archivoFinal.type });
+      } catch (err) { /* fallback: usar archivo original */ }
+      formData.append('nombre_examen', this.examenForm.nombre);
+      formData.append('examen_generado', tipoExamenObj ? tipoExamenObj.tipo_examen : '');
+      formData.append('formato', archivoFinal.type);
+      formData.append('fecha', this.examenForm.fecha);
+      formData.append('tipo_examen_id', this.examenForm.tipo);
+      formData.append('consulta_id', this.examenForm.consulta || '');
+      formData.append('archivo', archivoFinal);
+      formData.append('id_mascota', this.selectedPet);
+      try {
+        const res = await fetch('http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=examen', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Examen registrado correctamente.');
+          this.limpiarFormulario();
+        } else {
+          alert('Error al registrar examen: ' + (data.error || ''));
+        }
+      } catch (err) {
+        alert('Error de red al registrar examen.');
+      } finally {
+        this.loadingExamen = false;
       }
     }
   }
