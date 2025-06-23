@@ -11,6 +11,7 @@ import consultaMedicaEditar from '../views/4_2_modificar.vue'
 import examenesMedicos from '../views/5_0_examenes_medicos.vue'
 import examenesMedicosModificar from '../views/5_1_modificar.vue'
 import historialMedico from '../views/6_historial_medico.vue'
+import EditarExamenMedico from '../views/EditarExamenMedico.vue'
 
 
 const routes = [
@@ -26,6 +27,7 @@ const routes = [
   ,{path: '/examenes-medicos', component: examenesMedicos }
   ,{path: '/examenes-medicos-modificar', component: examenesMedicosModificar }
   , {path: '/historial-medico', component: historialMedico }
+  ,{ path: '/editar-examen-medico/:id', component: EditarExamenMedico }
 ]
 
 const router = createRouter({
