@@ -47,12 +47,36 @@ export default {
       }
     },
     downloadExamen() {
-      // Descargar el archivo
       if (this.examen.archivoUrl) {
-        const link = document.createElement('a');
-        link.href = this.examen.archivoUrl;
-        link.download = this.examen.filename;
-        link.click();
+        fetch(this.examen.archivoUrl, {
+          method: 'GET',
+          // No headers ni credentials para evitar CORS o bloqueos innecesarios
+        })
+          .then(response => {
+            if (!response.ok) throw new Error('No se pudo descargar el archivo');
+            const disposition = response.headers.get('Content-Disposition');
+            let filename = this.examen.filename || 'examen';
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+              const match = disposition.match(/filename="?([^";]+)"?/);
+              if (match && match[1]) filename = match[1];
+            }
+            return response.blob().then(blob => ({ blob, filename }));
+          })
+          .then(({ blob, filename }) => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(link);
+            }, 100);
+          })
+          .catch(() => {
+            alert('No se pudo descargar el archivo.');
+          });
       } else {
         alert('No hay archivo disponible para descargar.');
       }

@@ -211,7 +211,7 @@ export default {
           consultaId: ex.consulta_id_consulta,
           examen_generado: ex.examen_generado,
           formato: ex.formato,
-          archivoUrl: ex.archivo_url || (ex.filename ? `/uploads/examenes/${ex.filename}` : null),
+          archivoUrl: ex.filename ? `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=descargar_examen&filename=${encodeURIComponent(ex.filename)}` : null,
           estado: 'Completado'
         })) : [];
       } catch (e) {
@@ -328,10 +328,7 @@ export default {
         this.loadingExamen = false;
       }
     },
-    onDeleteExamen(id) {
-      this.examenList = this.examenList.filter(ex => ex.id !== id);
-      // Aquí puedes agregar lógica para eliminar realmente el examen en la API si lo deseas
-    },
+
   }
 }
 </script>
