@@ -16,14 +16,14 @@
         <div class="vet-form-row">
           <div class="vet-form-group">
             <label for="filtro-nombre">Nombre de la Mascota</label>
-            <input type="text" id="filtro-nombre" class="vet-form-control" placeholder="Ej: Max">
+            <input type="text" id="filtro-nombre" class="vet-form-control" v-model="filtroNombre" placeholder="Ej: Max">
           </div>
           <div class="vet-form-group">
-            <label for="filtro-dni">DNI del Propietario</label>
-            <input type="text" id="filtro-dni" class="vet-form-control" placeholder="Ej: 12345678">
+            <label for="filtro-propietario">Propietario</label>
+            <input type="text" id="filtro-propietario" class="vet-form-control" v-model="filtropropietario" placeholder="Ej: David o 12345678">
           </div>
           <div class="vet-form-group" style="align-self: flex-end;">
-            <button class="vet-btn">
+            <button class="vet-btn" @click="buscarMascotas">
               <i class="fas fa-search"></i> Buscar
             </button>
           </div>
@@ -35,20 +35,15 @@
           <h3><i class="fas fa-search"></i> Resultados</h3>
         </div>
         <div class="vet-pets-list">
-          <div class="vet-pet-item">
-            <label>
-              <input type="radio" name="paciente" checked>
-              <div class="d-flex align-items-center">
-                <img src="../assets/mascota_1.jpg" alt="Max" class="vet-pet-avatar">
-                <div>
-                  <h4>Max</h4>
-                  <p class="text-muted">Labrador Retriever - 3 años</p>
-                  <p><strong>Propietario:</strong> Juan Pérez (DNI: 12345678)</p>
-                  <p><strong>ID Mascota:</strong> MV-001</p>
-                </div>
-              </div>
-            </label>
-          </div>
+          <VetPetItem
+            v-for="(pet, idx) in pets"
+            :key="pet.id"
+            :pet="pet"
+            :checked="selectedPet === pet.id"
+            :radioName="'paciente'"
+            @select="selectedPet = pet.id"
+          />
+          <div v-if="pets.length === 0" class="text-muted" style="padding: 1rem;">No hay mascotas para mostrar.</div>
         </div>
       </div>
       <!-- Pestañas de historial -->
@@ -213,19 +208,76 @@
 
 <script>
 import VetSidebar from '../components/VetSidebar.vue';
+import VetPetItem from '../components/VetPetItem.vue';
+
+const ICONO_MASCOTA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAhFBMVEX///8AAAAmJibt7e2urq7p6emfn584ODhcXFz6+vrZ2dmbm5tDQ0M1NTX29vbm5ubFxcW9vb1lZWXx8fFLS0vNzc1zc3Pg4OCjo6OOjo7BwcGIiIh/f3+ysrJbW1vV1dUTExN3d3ctLS0bGxsaGhpOTk6Tk5M+Pj4iIiIMDAyCgoJsbGwliqaVAAAKqElEQVR4nO2d6ZaqMAyAVdxwQRRRdNxw1HF5//e7NgVk6UIhIPecfn/uHWWYhqZJmqal1dJoNBqNRqPRaDQajUaj0Wg0Go1Go9FoNBqNRqPRaDRJ/gHGCnsD0T8bHAAAAABJRU5ErkJggg=='
 
 export default {
   name: 'HistorialMedico',
   components: {
-    VetSidebar
+    VetSidebar,
+    VetPetItem
   },
   data() {
     return {
+      filtroNombre: '',
+      filtropropietario: '',
+      pets: [],
+      selectedPet: null,
       activeTab: 'vacunacion',
       consultasExpand: [false, false]
     }
   },
   methods: {
+    async buscarMascotas() {
+      let url;
+      const nombre = this.filtroNombre.trim();
+      const propietario = this.filtropropietario.trim();
+      if (!nombre && !propietario) {
+        url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=todas_mascotas&query=`;
+      } else if (propietario && !nombre) {
+        if (/^\d+$/.test(propietario)) {
+          // Si es numérico, buscar por DNI
+          url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=mascotas_propietario_flexible&dni=${encodeURIComponent(propietario)}`;
+        } else {
+          // Si es texto, buscar por nombre de propietario
+          url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=mascotas_propietario_flexible&nombre=${encodeURIComponent(propietario)}`;
+        }
+      } else if (nombre && !propietario) {
+        url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=mascotas_por_nombre&nombre_mascota=${encodeURIComponent(nombre)}`;
+      } else {
+        // Si ambos están presentes, prioriza búsqueda por ambos (si la API lo soporta, si no, usa nombre)
+        if (/^\d+$/.test(propietario)) {
+          url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=mascotas_propietario_flexible&nombre_mascota=${encodeURIComponent(nombre)}&dni=${encodeURIComponent(propietario)}`;
+        } else {
+          url = `http://localhost/repo_oficial/PIMS_BACK/controllers/api_general.php?endpoint=mascotas_propietario_flexible&nombre_mascota=${encodeURIComponent(nombre)}&nombre=${encodeURIComponent(propietario)}`;
+        }
+      }
+      try {
+        const res = await fetch(url);
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          console.error('No se pudo parsear JSON:', jsonErr);
+          data = null;
+        }
+        const mascotas = Array.isArray(data) ? data : (data && data.mascotas ? data.mascotas : []);
+        this.pets = mascotas.map(mascota => ({
+          id: mascota.id_mascota,
+          name: mascota.nombre,
+          breed: mascota.raza,
+          age: (mascota.edad ? mascota.edad + ' años' : ''),
+          img: ICONO_MASCOTA,
+          propietario: mascota.propietario || 'Desconocido'
+        }));
+        this.selectedPet = this.pets.length > 0 ? this.pets[0].id : null;
+      } catch (e) {
+        console.error('Error al cargar mascotas:', e);
+        this.pets = [];
+        this.selectedPet = null;
+      }
+    },
     toggleConsulta(idx) {
       this.$set(this.consultasExpand, idx, !this.consultasExpand[idx]);
     }
